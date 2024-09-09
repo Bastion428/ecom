@@ -7,6 +7,9 @@ class Category(models.Model):
 
     def __str__(self):
         return self.name
+    
+    class Meta:
+        verbose_name_plural = 'categories'
 
 # Customer
 class Customer(models.Model):
@@ -26,6 +29,9 @@ class Product(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE, default=1)
     description = models.CharField(max_length=250, default='', blank=True, null=True)
     image = models.ImageField(upload_to='uploads/product/')
+
+    def __str__(self):
+        return self.name
 
 class Order(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
