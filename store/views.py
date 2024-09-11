@@ -1,16 +1,35 @@
 from django.shortcuts import render, redirect
-from .models import Product
+from .models import Product, Category
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from django.contrib.auth.models import User
-from django.contrib.auth.forms import UserCreationForm
+# from django.contrib.auth.models import User
+# from django.contrib.auth.forms import UserCreationForm
 from .forms import SignUpForm
-from django import forms
+# from django import forms
+
+
+def category(request, name):
+    name = name.replace('-', ' ')
+    try:
+        category = Category.objects.get(name=name)
+        products = Product.objects.filter(category=category)
+        return render(request, 'category.html', {'products': products,
+                                                 'category': category})
+    except Category.DoesNotExist:
+        messages.error(request, "Category does not exist.")
+        return redirect('home')
+
+
+def product(request, pk):
+    product = Product.objects.get(id=pk)
+    return render(request, 'product.html', {'product': product})
 
 
 def home(request):
     products = Product.objects.all()
-    return render(request, 'home.html', {'products': products})
+    categories = Category.objects.all()
+    return render(request, 'home.html', {'products': products,
+                                         'categories': categories})
 
 
 def about(request):
@@ -41,8 +60,6 @@ def logout_user(request):
 
 
 def register_user(request):
-    form = SignUpForm()
-
     if request.method == 'POST':
         form = SignUpForm(request.POST)
         if form.is_valid():
@@ -56,9 +73,12 @@ def register_user(request):
             messages.success(request, "Successfully registered. Welcome!")
             return redirect('home')
         else:
-            messages.error(request, "There was a problem with registering."
-                           "Please try again")
+            error_list = form.errors
+            for error_sub in error_list.values():
+                for error in error_sub:
+                    messages.error(request, error)
             return redirect('register')
 
     else:
+        form = SignUpForm()
         return render(request, 'register.html', {'form': form})
