@@ -13,7 +13,63 @@
         </div>
     </div>
 </header>
+<br>
+<div class="container">
+    {% if cart_products %}
+        {% for product in cart_products %}
+            <div class="card mb-3">
+                <div class="row g-0">
+                    <div class="col-md-4">
+                        <img src="{{ product.image.url }}" class="img-fluid rounded-start" alt="...">
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card-body">
+                            <center>
+                            <h5 class="card-title">{{ product.name }}</h5>
+                            <p class="card-text">{{ product.description }}</p>
 
+                            {% if product.is_sale %}
+                                    <!--Sale-->
+                                    <div class="d-flex justify-content-center small text-warning mb-2">
+                                        <div class="bi-star-fill"></div>
+                                        &nbsp;&nbsp;Sale!&nbsp;&nbsp;
+                                        <div class="bi-star-fill"></div>
+                                    </div>
+                                    <!-- Product price-->
+                                        <s> ${{ product.price }} </s> 
+                                        &nbsp;${{ product.sale_price }}
+                            {% else %}
+                                ${{ product.price }}
+                            {% endif %}
+                            </center>
+                            <br><br>
+                            <div class="row justify-content-center">
+                                <div class="col-md-2">Quantity:</div>
+                                <div class="col-md-2">
+                                    <select class="form-select form-select-sm" id="qty-cart">
+                                            {% for id, qty in quantities.items %}
+                                                {% if id == product.id|slugify %}
+                                                    <option selected>{{ qty }}</option>
+                                                {% endif%}
+                                            {% endfor %}
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                        <option value="4">4</option>
+                                        <option value="5">5</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        There's nothing in your cart
+    {% endif %}
+        
+</div>
 
 <br><br>
 <br><br>

@@ -6,6 +6,7 @@ from django.contrib import messages
 # from django.contrib.auth.forms import UserCreationForm
 from .forms import SignUpForm
 # from django import forms
+from django.contrib.auth.decorators import login_required
 
 
 def category(request, name):
@@ -50,9 +51,14 @@ def login_user(request):
             messages.error(request, "There was an error, please try again")
             return redirect('login')
     else:
-        return render(request, 'login.html', {})
+        if request.user.is_authenticated:
+            messages.error(request, "Already logged in")
+            return redirect('home')
+        else:
+            return render(request, 'login.html', {})
 
 
+@login_required
 def logout_user(request):
     logout(request)
     messages.success(request, "Successfully logged out")

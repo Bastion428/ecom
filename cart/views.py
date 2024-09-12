@@ -3,10 +3,16 @@ from .cart import Cart
 from store.models import Product
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
+# from django.contrib.auth.decorators import login_required
 
 
 def cart_summary(request):
-    return render(request, "cart_summary.html", {})
+    cart = Cart(request)
+    cart_products = cart.get_prods()
+    quantities = cart.get_quants()
+    return render(request,
+                  "cart_summary.html",
+                  {'cart_products': cart_products, 'quantities': quantities})
 
 
 @require_POST
@@ -14,9 +20,11 @@ def cart_add(request):
     cart = Cart(request)
 
     product_id = int(request.POST.get('product_id'))
+    product_qty = int(request.POST.get('product_qty'))
+
     product = get_object_or_404(Product, id=product_id)
 
-    cart.add(product=product)
+    cart.add(product=product, quantity=product_qty)
     cart_quantity = len(cart)
     response = JsonResponse({'qty': cart_quantity})
     return response
