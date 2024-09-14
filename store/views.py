@@ -9,6 +9,11 @@ from .forms import SignUpForm
 from django.contrib.auth.decorators import login_required
 
 
+def category_summary(request):
+    categories = Category.objects.all()
+    return render(request, 'category_summary.html', {'categories': categories})
+
+
 def category(request, name):
     name = name.replace('-', ' ')
     try:
