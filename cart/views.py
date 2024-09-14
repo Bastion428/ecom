@@ -3,16 +3,21 @@ from .cart import Cart
 from store.models import Product
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_http_methods
 # from django.contrib.auth.decorators import login_required
+from django.http import QueryDict
 
 
 def cart_summary(request):
     cart = Cart(request)
     cart_products = cart.get_prods()
     quantities = cart.get_quants()
+    totals = cart.cart_total()
     return render(request,
                   "cart_summary.html",
-                  {'cart_products': cart_products, 'quantities': quantities})
+                  {'cart_products': cart_products,
+                   'quantities': quantities,
+                   'totals': totals})
 
 
 @require_POST
@@ -30,9 +35,26 @@ def cart_add(request):
     return response
 
 
+@require_http_methods(['DELETE'])
 def cart_delete(request):
-    pass
+    cart = Cart(request)
+    delete = QueryDict(request.body)
+
+    product_id = int(delete.get('product_id'))
+    cart.delete(product=product_id)
+
+    return JsonResponse({})
 
 
+@require_http_methods(['PUT'])
 def cart_update(request):
-    pass
+    cart = Cart(request)
+    put = QueryDict(request.body)
+
+    product_id = int(put.get('product_id'))
+    product_qty = int(put.get('product_qty'))
+
+    cart.update(product=product_id, quantity=product_qty)
+
+    response = JsonResponse({'qty': product_qty})
+    return response

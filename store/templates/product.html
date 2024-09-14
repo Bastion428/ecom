@@ -67,11 +67,10 @@
     $.ajax({
         type: 'POST',
         url: "{% url 'cart_add' %}",
+        headers: {"X-CSRFToken": '{{ csrf_token }}'},
         data: {
           product_id: $('#add-cart').val(),
-          product_qty: $('#qty-cart option:selected').text(),
-          csrfmiddlewaretoken: '{{ csrf_token }}'
-          // action: 'post'
+          product_qty: $('#qty-cart option:selected').text()
         },
         success: function(json){
           document.getElementById('cart_quantity').textContent = json.qty

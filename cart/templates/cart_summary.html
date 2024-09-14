@@ -14,10 +14,10 @@
     </div>
 </header>
 <br>
-<div class="container">
+<div class="container" id="main-part">
     {% if cart_products %}
         {% for product in cart_products %}
-            <div class="card mb-3">
+            <div class="card mb-3" id="card{{ product.id }}">
                 <div class="row g-0">
                     <div class="col-md-4">
                         <img src="{{ product.image.url }}" class="img-fluid rounded-start" alt="...">
@@ -41,12 +41,11 @@
                             {% else %}
                                 ${{ product.price }}
                             {% endif %}
-                            </center>
                             <br><br>
                             <div class="row justify-content-center">
                                 <div class="col-md-2">Quantity:</div>
                                 <div class="col-md-2">
-                                    <select class="form-select form-select-sm" id="qty-cart">
+                                    <select class="form-select form-select-sm" id="select{{ product.id }}">
                                             {% for id, qty in quantities.items %}
                                                 {% if id == product.id|slugify %}
                                                     <option selected>{{ qty }}</option>
@@ -60,11 +59,21 @@
                                     </select>
                                 </div>
                             </div>
+                            <br>
+                            <button type="button" data-index="{{ product.id }}" class="btn btn-secondary update-cart">
+                                Update
+                            </button>
+
+                            <button type="button" data-index="{{ product.id }}" class="btn btn-danger delete-cart-prod">
+                                Remove
+                            </button>
+                        </center>
                         </div>
                     </div>
                 </div>
             </div>
         {% endfor %}
+        <h3>Total: ${{ totals }}</h3>
     {% else %}
         There's nothing in your cart
     {% endif %}
@@ -74,4 +83,63 @@
 <br><br>
 <br><br>
 
+<script>
+    $(document).on('click', '.update-cart', function(e){
+      e.preventDefault();
+      $.ajax({
+          type: 'PUT',
+          url: "{% url 'cart_update' %}",
+          headers: {"X-CSRFToken": '{{ csrf_token }}'},
+          data: {
+            product_id: $(this).data('index'),
+            product_qty: $('#select' + $(this).data('index') + ' option:selected').text()
+          },
+          success: function(json){
+            location.reload();
+          },
+          error: function(xhr, errmsg, err){
+  
+          }
+      });
+    })
+  </script>
+
+
+<script>
+    $(document).on('click', '.delete-cart-prod', function(e){
+      e.preventDefault();
+      let product_id = $(this).data('index');
+
+      if (!confirm("Are you sure you want to delete this product from your cart?")) {
+        return
+      }
+
+      $.ajax({
+          type: 'DELETE',
+          url: "{% url 'cart_delete' %}",
+          headers: {"X-CSRFToken": '{{ csrf_token }}'},
+          data: {
+            product_id: $(this).data('index')
+          },
+          success: function(json){
+            const product = document.getElementById("card" + product_id);
+            product.remove();
+
+            const cards = document.getElementsByClassName("card").length;
+            console.log(cards);
+            if (cards == 0) {
+                const main = document.getElementById("main-part");
+                const text = document.createTextNode("There's nothing in your cart");
+                main.appendChild(text);
+            }
+            location.reload();
+          },
+          error: function(xhr, errmsg, err){
+  
+          }
+      });
+    })
+  </script>
+
 {% endblock %}
+  
