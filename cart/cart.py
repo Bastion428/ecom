@@ -18,8 +18,10 @@ class Cart():
 
         if product_id not in self.cart:
             self.cart[product_id] = int(product_qty)
-
-        self.session.modified = True
+            self.session.modified = True
+            return True
+        else:
+            return False
 
     def cart_total(self):
         product_ids = self.cart.keys()
@@ -53,7 +55,6 @@ class Cart():
         self.cart[product_id] = product_qty
 
         self.session.modified = True
-        return self.cart
 
     def delete(self, product):
         product_id = str(product)
@@ -61,5 +62,3 @@ class Cart():
         if product_id in self.cart:
             del self.cart[product_id]
             self.session.modified = True
-
-        return self.cart
