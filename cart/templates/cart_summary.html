@@ -46,11 +46,6 @@
                                 <div class="col-md-2">Quantity:</div>
                                 <div class="col-md-2">
                                     <select class="form-select form-select-sm" id="select{{ product.id }}">
-                                            {% for id, qty in quantities.items %}
-                                                {% if id == product.id|slugify %}
-                                                    <option selected>{{ qty }}</option>
-                                                {% endif%}
-                                            {% endfor %}
                                         <option value="1">1</option>
                                         <option value="2">2</option>
                                         <option value="3">3</option>
@@ -58,6 +53,18 @@
                                         <option value="5">5</option>
                                     </select>
                                 </div>
+
+                                {% for id, qty in quantities.items %}
+                                {% if id == product.id|slugify %}
+                                    <script type="text/javascript" data-id="{{ product.id }}" data-qty="{{ qty }}">
+                                        var data = document.currentScript.dataset;
+                                        var id = data.id;
+                                        var qty = data.qty;
+                                        document.getElementById(`select${id}`).value = qty;
+                                    </script>
+                                {% endif%}
+                            {% endfor %}
+
                             </div>
                             <br>
                             <button type="button" data-index="{{ product.id }}" class="btn btn-secondary update-cart">
@@ -102,7 +109,7 @@
           }
       });
     })
-  </script>
+</script>
 
 
 <script>
