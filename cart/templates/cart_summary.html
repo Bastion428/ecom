@@ -73,7 +73,7 @@
                 </div>
             </div>
         {% endfor %}
-        <h3>Total: ${{ totals }}</h3>
+        <h3 id="total">Total: ${{ totals }}</h3>
     {% else %}
         There's nothing in your cart
     {% endif %}
@@ -95,7 +95,7 @@
             product_qty: $('#select' + $(this).data('index') + ' option:selected').text()
           },
           success: function(json){
-            location.reload();
+            document.getElementById("total").textContent = `Total: $${json.total}`;
           },
           error: function(xhr, errmsg, err){
   
@@ -125,14 +125,17 @@
             const product = document.getElementById("card" + product_id);
             product.remove();
 
+            document.getElementById('cart_quantity').textContent = json.qty;
+            const total = document.getElementById("total");
+            total.textContent = `Total: $${json.total}`;
+
             const cards = document.getElementsByClassName("card").length;
-            console.log(cards);
-            if (cards == 0) {
+            if (cards === 0) {
+                total.remove();
                 const main = document.getElementById("main-part");
                 const text = document.createTextNode("There's nothing in your cart");
                 main.appendChild(text);
             }
-            location.reload();
           },
           error: function(xhr, errmsg, err){
   

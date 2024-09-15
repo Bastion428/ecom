@@ -33,8 +33,7 @@ def cart_add(request):
     if result:
         messages.success(request, "Product added to cart")
 
-    cart_quantity = len(cart)
-    response = JsonResponse({'qty': cart_quantity, 'result': result})
+    response = JsonResponse({'qty': len(cart), 'result': result})
     return response
 
 
@@ -45,8 +44,8 @@ def cart_delete(request):
 
     product_id = int(delete.get('product_id'))
     cart.delete(product=product_id)
-    messages.success(request, "Product removed from cart")
-    return JsonResponse({})
+
+    return JsonResponse({'total': cart.cart_total(), 'qty': len(cart)})
 
 
 @require_http_methods(['PUT'])
@@ -59,6 +58,5 @@ def cart_update(request):
 
     cart.update(product=product_id, quantity=product_qty)
 
-    response = JsonResponse({'qty': product_qty})
-    messages.success(request, "Cart has been updated")
+    response = JsonResponse({'total': cart.cart_total()})
     return response
