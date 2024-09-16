@@ -2,11 +2,45 @@ from django.shortcuts import render, redirect
 from .models import Product, Category
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-# from django.contrib.auth.models import User
+from django.contrib.auth.models import User
 # from django.contrib.auth.forms import UserCreationForm
-from .forms import SignUpForm
+from .forms import SignUpForm, UpdateUserForm, ChangePasswordFrom
 # from django import forms
 from django.contrib.auth.decorators import login_required
+
+
+@login_required
+def update_password(request):
+    current_user = request.user
+    if request.method == 'POST':
+        form = ChangePasswordFrom(current_user, request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Password successfully updated")
+            login(request, current_user)
+            return redirect('home')
+        else:
+            for error in list(form.errors.values()):
+                messages.error(request, error)
+            return redirect('update_password')
+    else:
+        form = ChangePasswordFrom(current_user)
+        return render(request, "update_password.html", {'form': form})
+
+
+@login_required
+def update_user(request):
+    current_user = User.objects.get(id=request.user.id)
+    user_form = UpdateUserForm(request.POST or None, instance=current_user)
+
+    if user_form.is_valid():
+        user_form.save()
+
+        login(request, current_user)
+        messages.success(request, "User has been updated")
+        return redirect('home')
+    else:
+        return render(request, 'update_user.html', {'user_form': user_form})
 
 
 def category_summary(request):
@@ -43,6 +77,10 @@ def about(request):
 
 
 def login_user(request):
+    if 'next' in request.GET:
+        messages.add_message(request, messages.INFO,
+                             'You must be logged in to access that page')
+
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
@@ -84,10 +122,8 @@ def register_user(request):
             messages.success(request, "Successfully registered. Welcome!")
             return redirect('home')
         else:
-            error_list = form.errors
-            for error_sub in error_list.values():
-                for error in error_sub:
-                    messages.error(request, error)
+            for error in list(form.errors.values()):
+                messages.error(request, error)
             return redirect('register')
 
     else:
