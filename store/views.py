@@ -1,12 +1,25 @@
 from django.shortcuts import render, redirect
-from .models import Product, Category
+from .models import Product, Category, Profile
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.models import User
 # from django.contrib.auth.forms import UserCreationForm
-from .forms import SignUpForm, UpdateUserForm, ChangePasswordFrom
+from .forms import SignUpForm, UpdateUserForm, ChangePasswordFrom, UserInfoForm
 # from django import forms
 from django.contrib.auth.decorators import login_required
+
+
+@login_required
+def update_info(request):
+    current_user = Profile.objects.get(user__id=request.user.id)
+    form = UserInfoForm(request.POST or None, instance=current_user)
+
+    if form.is_valid():
+        form.save()
+        messages.success(request, "User information has been updated")
+        return redirect('home')
+    else:
+        return render(request, 'update_info.html', {'form': form})
 
 
 @login_required
@@ -44,8 +57,7 @@ def update_user(request):
 
 
 def category_summary(request):
-    categories = Category.objects.all()
-    return render(request, 'category_summary.html', {'categories': categories})
+    return render(request, 'category_summary.html', {})
 
 
 def category(request, name):
@@ -67,9 +79,7 @@ def product(request, pk):
 
 def home(request):
     products = Product.objects.all()
-    categories = Category.objects.all()
-    return render(request, 'home.html', {'products': products,
-                                         'categories': categories})
+    return render(request, 'home.html', {'products': products})
 
 
 def about(request):
@@ -119,8 +129,10 @@ def register_user(request):
             # log in user
             user = authenticate(username=username, password=password)
             login(request, user)
-            messages.success(request, "Successfully registered. Welcome!")
-            return redirect('home')
+            messages.success(
+                request,
+                "Account created. Please fill out the information below")
+            return redirect('update_info')
         else:
             for error in list(form.errors.values()):
                 messages.error(request, error)
