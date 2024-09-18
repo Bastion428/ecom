@@ -12,5 +12,7 @@ urlpatterns = [
     path('update_info/', views.update_info, name='update_info'),
     path('product/<int:pk>', views.product, name='product'),
     path('category/<str:name>', views.category, name='category'),
-    path('category_summary/', views.category_summary, name='category_summary')
+    path('category_summary/', views.category_summary, name='category_summary'),
+    path('search/', views.search, name='search'),
+    path('auto_complete/', views.auto_complete, name='auto'),
 ]

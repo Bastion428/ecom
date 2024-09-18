@@ -32,11 +32,11 @@
                     <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Login</a></li>
                 {% endif %}   
             </ul>
-            <form class="d-flex">
-                <input type="text" placeholder="Search products" autocomplete="off" name="autocomplete" id="autocomplete"
-                onkeydown="return event.key != 'Enter';" class="ms-5 me-1">
-                <button class="btn btn-outline-success me-4" type="submit"><i class="bi bi-search"></i></i></button>
-                <input type="hidden" name="id" id="auto_id">
+            <form class="d-flex" method="POST" action="{% url 'search' %}" id="search_submit">
+                {% csrf_token %}
+                <input type="text" placeholder="Search products" autocomplete="off" name="searched" id="searched" class="form-control ms-5 me-1">
+                <button class="btn btn-outline-dark me-4" type="submit"><i class="bi bi-search"></i></button>
+                <input type="hidden" name="id" id="search_id">
             </form>
             <form class="d-flex">
                 <a href="{% url 'cart_summary' %}" class="btn btn-outline-dark">
@@ -48,3 +48,14 @@
         </div>
     </div>
 </nav>
+
+
+<script>
+    $('#searched').autocomplete({
+        serviceUrl: '/auto_complete',
+        datatype: 'json',
+        onSelect: function (suggestion) {
+            window.location.href = `/product/${suggestion.data}`;
+        }
+    });
+  </script>

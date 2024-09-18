@@ -7,6 +7,36 @@ from django.contrib.auth.models import User
 from .forms import SignUpForm, UpdateUserForm, ChangePasswordFrom, UserInfoForm
 # from django import forms
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST, require_GET
+from django.http import JsonResponse
+from django.db.models import Q
+
+
+@require_GET
+def auto_complete(request):
+    searched = request.GET['query']
+    results = Product.objects.filter(
+        Q(name__icontains=searched) | Q(description__icontains=searched))
+
+    suggestions = []
+    for product in results:
+        suggestions.append({'value': product.name, 'data': product.id})
+
+    return JsonResponse({"suggestions": suggestions})
+
+
+@require_POST
+def search(request):
+    searched = request.POST['searched']
+    if searched != '':
+        searched = Product.objects.filter(
+            Q(name__icontains=searched) | Q(description__icontains=searched))
+
+    if not searched:
+        messages.error(request, "Product does not exist")
+        return render(request, "search.html", {})
+    else:
+        return render(request, "search.html", {'searched': searched})
 
 
 @login_required
