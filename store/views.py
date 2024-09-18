@@ -10,6 +10,8 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST, require_GET
 from django.http import JsonResponse
 from django.db.models import Q
+import json
+from cart.cart import Cart
 
 
 @require_GET
@@ -128,6 +130,18 @@ def login_user(request):
 
         if user:
             login(request, user)
+
+            current_user = Profile.objects.get(user__id=request.user.id)
+            saved_cart = current_user.old_cart
+
+            if saved_cart:
+                converted_cart = json.loads(saved_cart)
+                cart = Cart(request)
+
+                for id, qty in converted_cart.items():
+                    cart.db_add(id, qty)
+                cart.carty_update()
+
             messages.success(request, "Successfully logged in")
             return redirect('home')
         else:
