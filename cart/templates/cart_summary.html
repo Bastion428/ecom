@@ -80,7 +80,7 @@
                 </div>
             </div>
         {% endfor %}
-        <div align="right">
+        <div align="right" id="checkout_btn">
             <h3 id="total">Total: ${{ totals }}</h3>
             <a href="{% url 'checkout'%}" class="btn btn-success">Checkout</a>
         </div>
@@ -142,6 +142,7 @@
 
             const cards = document.getElementsByClassName("card").length;
             if (cards === 0) {
+                document.getElementById("checkout_btn").remove();
                 total.remove();
                 const main = document.getElementById("main-part");
                 const text = document.createTextNode("There's nothing in your cart");

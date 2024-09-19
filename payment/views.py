@@ -1,8 +1,21 @@
-from django.shortcuts import render
-from django.views.decorators.http import require_POST, require_GET, require_http_methods
+from django.shortcuts import render, redirect
+from django.views.decorators.http import require_POST, require_http_methods
 from cart.cart import Cart
-from .forms import ShippingForm
+from .forms import ShippingForm, PaymentForm
 from .models import ShippingAddress
+from django.contrib import messages
+
+
+@require_POST
+def billing_info(request):
+    cart = Cart(request)
+    cart_products = cart.get_prods()
+    quantities = cart.get_quants()
+    totals = cart.cart_total()
+
+    billing_form = PaymentForm()
+    return render(request, "payment/billing_info.html", {'cart_products': cart_products, 'quantities': quantities,
+                                                         'totals': totals, 'shipping_info': request.POST, "billing_form": billing_form})
 
 
 def payment_success(request):
