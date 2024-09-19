@@ -9,7 +9,7 @@ from payment.forms import ShippingForm
 from payment.models import ShippingAddress
 from django import forms
 from django.contrib.auth.decorators import login_required
-from django.views.decorators.http import require_POST, require_GET
+from django.views.decorators.http import require_POST, require_GET, require_http_methods
 from django.http import JsonResponse
 from django.db.models import Q
 import json
@@ -44,12 +44,18 @@ def search(request):
 
 
 @login_required
+@require_http_methods(['GET', 'POST'])
 def update_info(request):
     current_user = Profile.objects.get(user__id=request.user.id)
     shipping_user = ShippingAddress.objects.get(user__id=request.user.id)
 
-    form = UserInfoForm(request.POST or None, instance=current_user)
-    shipping_form = ShippingForm(request.POST or None, instance=shipping_user)
+    if request.method == 'POST':
+        form = UserInfoForm(request.POST, instance=current_user)
+        shipping_form = ShippingForm(request.POST, instance=shipping_user)
+    else:
+        form = UserInfoForm(instance=current_user)
+        shipping_form = ShippingForm(instance=shipping_user)
+        return render(request, 'update_info.html', {'form': form, 'shipping_form': shipping_form})
 
     result1 = form.is_valid()
     if result1:
