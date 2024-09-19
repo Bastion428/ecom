@@ -55,15 +55,15 @@
                                 </div>
 
                                 {% for id, qty in quantities.items %}
-                                {% if id == product.id|slugify %}
-                                    <script type="text/javascript" data-id="{{ product.id }}" data-qty="{{ qty }}">
-                                        var data = document.currentScript.dataset;
-                                        var id = data.id;
-                                        var qty = data.qty;
-                                        document.getElementById(`select${id}`).value = qty;
-                                    </script>
-                                {% endif%}
-                            {% endfor %}
+                                    {% if id == product.id|slugify %}
+                                        <script type="text/javascript" data-id="{{ product.id }}" data-qty="{{ qty }}">
+                                            var data = document.currentScript.dataset;
+                                            var id = data.id;
+                                            var qty = data.qty;
+                                            document.getElementById(`select${id}`).value = qty;
+                                        </script>
+                                    {% endif%}
+                                {% endfor %}
 
                             </div>
                             <br>
@@ -80,7 +80,11 @@
                 </div>
             </div>
         {% endfor %}
-        <h3 id="total">Total: ${{ totals }}</h3>
+        <div align="right">
+            <h3 id="total">Total: ${{ totals }}</h3>
+            <a href="{% url 'checkout'%}" class="btn btn-success">Checkout</a>
+        </div>
+        
     {% else %}
         There's nothing in your cart
     {% endif %}
