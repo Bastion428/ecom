@@ -12,9 +12,7 @@ class UserInfoForm(forms.ModelForm):
     city = forms.CharField(label="", widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'City'}), required=False)
     state = forms.CharField(label="", widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'State'}), required=False)
     zipcode = forms.CharField(label="", widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'ZIP code'}), required=False)
-    country = forms.CharField(label="", widget=forms.TextInput(
-        attrs={'class': 'form-control', 'placeholder': 'Country'}),
-        required=False)
+    country = forms.CharField(label="", widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Country'}), required=False)
 
     class Meta:
         model = Profile
@@ -43,20 +41,9 @@ class ChangePasswordFrom(SetPasswordForm):
 
 class UpdateUserForm(UserChangeForm):
     password = None
-    email = forms.EmailField(
-        label="",
-        widget=forms.TextInput(
-            attrs={'class': 'form-control', 'placeholder': 'Email Address'}),
-        required=False)
-    first_name = forms.CharField(
-        label="", max_length=100,
-        widget=forms.TextInput(
-            attrs={'class': 'form-control', 'placeholder': 'First Name'}),
-        required=False)
-    last_name = forms.CharField(
-        label="", max_length=100, widget=forms.TextInput(
-            attrs={'class': 'form-control', 'placeholder': 'Last Name'}),
-        required=False)
+    email = forms.EmailField(label="", widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Email Address'}), required=False)
+    first_name = forms.CharField(label="", max_length=100, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'First Name'}), required=False)
+    last_name = forms.CharField(label="", max_length=100, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Last Name'}), required=False)
 
     class Meta:
         model = User
@@ -86,7 +73,7 @@ class SignUpForm(UserCreationForm):
         self.fields['username'].widget.attrs['class'] = 'form-control'
         self.fields['username'].widget.attrs['placeholder'] = 'Username'
         self.fields['username'].label = ''
-        self.fields['username'].help_text = '<span class="form-text text-muted"><small>Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.</small></span>'
+        self.fields['username'].help_text = '<span class="form-text text-muted"><small>Required. 150 characters or fewer. Letters, digits and the following special characters only: @.+-_</small></span>'
 
         self.fields['password1'].widget.attrs['class'] = 'form-control'
         self.fields['password1'].widget.attrs['placeholder'] = 'Password'
