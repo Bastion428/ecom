@@ -3,9 +3,11 @@ from .models import Product, Category, Profile
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.models import User
-# from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm
 from .forms import SignUpForm, UpdateUserForm, ChangePasswordFrom, UserInfoForm
-# from django import forms
+from payment.forms import ShippingForm
+from payment.models import ShippingAddress
+from django import forms
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST, require_GET
 from django.http import JsonResponse
@@ -44,14 +46,38 @@ def search(request):
 @login_required
 def update_info(request):
     current_user = Profile.objects.get(user__id=request.user.id)
-    form = UserInfoForm(request.POST or None, instance=current_user)
+    shipping_user = ShippingAddress.objects.get(user__id=request.user.id)
 
-    if form.is_valid():
+    form = UserInfoForm(request.POST or None, instance=current_user)
+    shipping_form = ShippingForm(request.POST or None, instance=shipping_user)
+
+    result1 = form.is_valid()
+    if result1:
         form.save()
-        messages.success(request, "User information has been updated")
-        return redirect('home')
+        messages.success(request, "User/billing information has been updated")
     else:
-        return render(request, 'update_info.html', {'form': form})
+        errors = list(form.errors.values())
+        if errors:
+            messages.error(request, "Issue(s) found with provided user/billing information")
+            for error in errors:
+                messages.error(request, error)
+
+    result2 = shipping_form.is_valid()
+    if result2:
+        shipping_form.save()
+        messages.success(request, "Shipping information has been updated")
+    else:
+        errors = list(shipping_form.errors.values())
+        if errors:
+            messages.error(request, "Issue(s) found with provided shipping information")
+            for error in errors:
+                messages.error(request, error)
+
+    if not result1 or not result2:
+        return render(request, 'update_info.html',
+                      {'form': form, 'shipping_form': shipping_form})
+    else:
+        return redirect('home')
 
 
 @login_required
@@ -121,7 +147,7 @@ def about(request):
 def login_user(request):
     if 'next' in request.GET:
         messages.add_message(request, messages.INFO,
-                             'You must be logged in to access that page')
+                             'Must be logged in to access that page')
 
     if request.method == 'POST':
         username = request.POST['username']
@@ -173,9 +199,7 @@ def register_user(request):
             # log in user
             user = authenticate(username=username, password=password)
             login(request, user)
-            messages.success(
-                request,
-                "Account created. Please fill out the information below")
+            messages.success(request, "Account created. Please fill out the information below")
             return redirect('update_info')
         else:
             for error in list(form.errors.values()):

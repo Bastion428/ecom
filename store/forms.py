@@ -6,24 +6,12 @@ from .models import Profile
 
 
 class UserInfoForm(forms.ModelForm):
-    phone = forms.CharField(label="", widget=forms.TextInput(
-        attrs={'class': 'form-control', 'placeholder': 'Phone'}),
-        required=False)
-    address1 = forms.CharField(label="", widget=forms.TextInput(
-        attrs={'class': 'form-control', 'placeholder': 'Address 1'}),
-        required=False)
-    address2 = forms.CharField(label="", widget=forms.TextInput(
-        attrs={'class': 'form-control', 'placeholder': 'Address 2'}),
-        required=False)
-    city = forms.CharField(label="", widget=forms.TextInput(
-        attrs={'class': 'form-control', 'placeholder': 'City'}),
-        required=False)
-    state = forms.CharField(label="", widget=forms.TextInput(
-        attrs={'class': 'form-control', 'placeholder': 'State'}),
-        required=False)
-    zipcode = forms.CharField(label="", widget=forms.TextInput(
-        attrs={'class': 'form-control', 'placeholder': 'ZIP code'}),
-        required=False)
+    phone = forms.CharField(label="", widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Phone'}), required=False)
+    address1 = forms.CharField(label="", widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Address 1'}), required=False)
+    address2 = forms.CharField(label="", widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Address 2'}), required=False)
+    city = forms.CharField(label="", widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'City'}), required=False)
+    state = forms.CharField(label="", widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'State'}), required=False)
+    zipcode = forms.CharField(label="", widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'ZIP code'}), required=False)
     country = forms.CharField(label="", widget=forms.TextInput(
         attrs={'class': 'form-control', 'placeholder': 'Country'}),
         required=False)
@@ -84,25 +72,19 @@ class UpdateUserForm(UserChangeForm):
 
 
 class SignUpForm(UserCreationForm):
-    email = forms.EmailField(label="", widget=forms.TextInput(
-        attrs={'class': 'form-control', 'placeholder': 'Email Address'}))
-    first_name = forms.CharField(
-        label="", max_length=100, widget=forms.TextInput(
-            attrs={'class': 'form-control', 'placeholder': 'First Name'}))
-    last_name = forms.CharField(
-        label="", max_length=100, widget=forms.TextInput(
-            attrs={'class': 'form-control', 'placeholder': 'Last Name'}))
+    email = forms.EmailField(label="", widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Email Address'}))
+    first_name = forms.CharField(label="", max_length=100, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'First Name'}))
+    last_name = forms.CharField(label="", max_length=100, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Last Name'}))
 
     class Meta:
         model = User
-        fields = ('username', 'first_name', 'last_name',
-                  'email', 'password1', 'password2')
+        fields = ('username', 'first_name', 'last_name', 'email', 'password1', 'password2')
 
     def __init__(self, *args, **kwargs):
         super(SignUpForm, self).__init__(*args, **kwargs)
 
         self.fields['username'].widget.attrs['class'] = 'form-control'
-        self.fields['username'].widget.attrs['placeholder'] = 'User Name'
+        self.fields['username'].widget.attrs['placeholder'] = 'Username'
         self.fields['username'].label = ''
         self.fields['username'].help_text = '<span class="form-text text-muted"><small>Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.</small></span>'
 
