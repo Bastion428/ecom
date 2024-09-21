@@ -75,6 +75,8 @@
         success: function(json){
           document.getElementById('cart_quantity').textContent = json.qty;
           if (json.result) {
+            window.location = "/cart";
+          } else {
             location.reload();
           }
         },

@@ -76,8 +76,7 @@ class Cart():
 
     def carty_update(self):
         if self.request.user.is_authenticated:
-            current_user = Profile.objects.filter(
-                user__id=self.request.user.id)
+            current_user = Profile.objects.filter(user__id=self.request.user.id)
             carty = str(self.cart)
             carty = carty.replace("\'", "\"")
             current_user.update(old_cart=carty)

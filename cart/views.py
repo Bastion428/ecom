@@ -29,6 +29,10 @@ def cart_add(request):
     result = cart.add(product=product, quantity=product_qty)
     if result:
         messages.success(request, "Product added to cart")
+    else:
+        # Changes this later so it will add additional number chosen of this unit to the cart
+        # Cart quantity should also be the total number of products in cart and not number of unique products
+        messages.error(request, "Product already in cart")
 
     response = JsonResponse({'qty': len(cart), 'result': result})
     return response
