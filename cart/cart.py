@@ -75,6 +75,7 @@ class Cart():
             self.carty_update()
 
     def clear(self):
+        del self.session['session_key']
         self.cart = {}
         self.session.modified = True
         self.carty_update()

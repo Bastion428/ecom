@@ -58,8 +58,7 @@ def process_order(request):
         create_order_items.save()
 
     # Delete items in cart
-    del request.session["session_key"]    # Delete cart info from session
-    cart.clear()                          # Deletes cart info from database
+    cart.clear()
 
     messages.success(request, "Order Placed")
     return redirect('home')
