@@ -9,6 +9,13 @@ from django.core.paginator import Paginator
 
 
 @staff_member_required
+def orders(request, pk):
+    order = Order.objects.get(id=pk)
+    items = OrderItem.objects.filter(order=pk)
+    return render(request, 'payment/orders.html', {'order': order, 'items': items})
+
+
+@staff_member_required
 def not_shipped_dash(request):
     orders = Order.objects.filter(shipped=False)
     paginator = Paginator(orders, 10)
