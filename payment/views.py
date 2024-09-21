@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.views.decorators.http import require_POST, require_http_methods
+from django.views.decorators.http import require_POST, require_GET
 from cart.cart import Cart
 from .forms import ShippingForm, PaymentForm
 from .models import ShippingAddress, Order, OrderItem
@@ -10,6 +10,12 @@ from store.models import Product
 
 @require_POST
 def billing_info(request):
+    form = ShippingForm(request.POST)
+    if not form.is_valid():
+        for error in list(form.errors.values()):
+            messages.error(request, error)
+        return redirect('checkout')
+
     cart = Cart(request)
     cart_products = cart.get_prods()
     quantities = cart.get_quants()
@@ -48,6 +54,7 @@ def process_order(request):
     # Create an order
     user = request.user if request.user.is_authenticated else None
     create_order = Order(user=user, full_name=full_name, email=email, shipping_address=shipping_address, amount_paid=amount_paid)
+    create_order.full_clean()
     create_order.save()
 
     # Add order items
@@ -68,24 +75,19 @@ def payment_success(request):
     return render(request, "payment/payment_success.html", {})
 
 
-@require_http_methods(['GET', 'POST'])
+@require_GET
 def checkout(request):
     cart = Cart(request)
+    print(request.method)
     cart_products = cart.get_prods()
     quantities = cart.get_quants()
     totals = cart.cart_total()
 
     if request.user.is_authenticated:
         shipping_user = ShippingAddress.objects.get(user__id=request.user.id)
-        if request.method == 'POST':
-            shipping_form = ShippingForm(request.POST, instance=shipping_user)
-        else:
-            shipping_form = ShippingForm(instance=shipping_user)
+        shipping_form = ShippingForm(instance=shipping_user)
     else:
-        if request.method == 'POST':
-            shipping_form = ShippingForm(request.POST)
-        else:
-            shipping_form = ShippingForm()
+        shipping_form = ShippingForm()
 
     return render(request, "payment/checkout.html", {'cart_products': cart_products, 'quantities': quantities,
                                                      'totals': totals, 'shipping_form': shipping_form})

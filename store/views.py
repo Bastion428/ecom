@@ -3,11 +3,9 @@ from .models import Product, Category, Profile
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.models import User
-from django.contrib.auth.forms import UserCreationForm
 from .forms import SignUpForm, UpdateUserForm, ChangePasswordFrom, UserInfoForm
 from payment.forms import ShippingForm
 from payment.models import ShippingAddress
-from django import forms
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST, require_GET, require_http_methods
 from django.http import JsonResponse
@@ -108,7 +106,11 @@ def update_password(request):
 @login_required
 def update_user(request):
     current_user = User.objects.get(id=request.user.id)
-    user_form = UpdateUserForm(request.POST or None, instance=current_user)
+
+    if request.method == 'POST':
+        user_form = UpdateUserForm(request.POST, instance=current_user)
+    else:
+        user_form = UpdateUserForm(instance=current_user)
 
     if user_form.is_valid():
         user_form.save()
@@ -117,6 +119,8 @@ def update_user(request):
         messages.success(request, "User has been updated")
         return redirect('home')
     else:
+        for error in list(user_form.errors.values()):
+            messages.error(request, error)
         return render(request, 'update_user.html', {'user_form': user_form})
 
 
