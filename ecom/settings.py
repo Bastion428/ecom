@@ -69,6 +69,9 @@ TEMPLATES = [
                 'cart.context_processors.cart',
                 'store.context_processors.category'
             ],
+            'builtins': [
+                'ecom.templatetags.custom_tags'
+            ]
         },
     },
 ]
