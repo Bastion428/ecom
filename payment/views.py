@@ -1,11 +1,32 @@
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_POST, require_GET
+from django.contrib.admin.views.decorators import staff_member_required
 from cart.cart import Cart
 from .forms import ShippingForm, PaymentForm
 from .models import ShippingAddress, Order, OrderItem
-from django.contrib.auth.models import User
 from django.contrib import messages
-from store.models import Product
+from django.core.paginator import Paginator
+
+
+@staff_member_required
+def not_shipped_dash(request):
+    orders = Order.objects.filter(shipped=False)
+    paginator = Paginator(orders, 10)
+
+    page_num = request.GET.get('page')
+    orders = paginator.get_page(page_num)
+
+    return render(request, "payment/not_shipped_dash.html", {'orders': orders})
+
+
+@staff_member_required
+def shipped_dash(request):
+    orders = Order.objects.filter(shipped=True)
+    paginator = Paginator(orders, 10)
+
+    page_num = request.GET.get('page')
+    orders = paginator.get_page(page_num)
+    return render(request, "payment/shipped_dash.html", {'orders': orders})
 
 
 @require_POST

@@ -1,5 +1,5 @@
 <!-- Navigation-->
-<nav class="navbar sticky-top navbar-expand-lg navbar-light bg-light">
+<nav class="navbar sticky-top navbar-expand-lg navbar-light" style="background-color: #D3D3D3;">
     <div class="container px-4 px-lg-5">
         <a class="navbar-brand" href="{% url 'home' %}">Ecommerce</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
@@ -16,6 +16,17 @@
                             <li><a class="dropdown-item" href="{% url 'update_info' %}">User Info</a></li>
                         </ul>
                     </li>
+
+                    {% if user.is_superuser %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Orders</a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <li><a class="dropdown-item" href="{% url 'shipped_dash' %}">Shipped Orders</a></li>
+                                <li><a class="dropdown-item" href="{% url 'not_shipped_dash' %}">Unshipped Orders</a></li>
+                            </ul>
+                        </li>
+                    {% endif %} 
+
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Categories</a>
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
@@ -35,11 +46,11 @@
             <form class="d-flex" method="POST" action="{% url 'search' %}" id="search_submit">
                 {% csrf_token %}
                 <input type="text" placeholder="Search products" autocomplete="off" name="searched" id="searched" class="form-control ms-5 me-1">
-                <button class="btn btn-outline-dark me-4" type="submit"><i class="bi bi-search"></i></button>
+                <button class="btn btn-outline-dark bg-light me-4" type="submit"><i class="bi bi-search"></i></button>
                 <input type="hidden" name="id" id="search_id">
             </form>
             <form class="d-flex">
-                <a href="{% url 'cart_summary' %}" class="btn btn-outline-dark">
+                <a href="{% url 'cart_summary' %}" class="btn btn-outline-dark bg-light">
                     <i class="bi-cart-fill me-1"></i>
                     Cart
                     <span class="badge bg-dark text-white ms-1 rounded-pill" id="cart_quantity">{{ cart|length }}</span>
