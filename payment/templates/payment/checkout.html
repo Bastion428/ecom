@@ -32,11 +32,7 @@
                         {% endif %}
                         <br>
                         <small>Quantity:
-                        {% for id, qty in quantities.items %}
-                            {% if id == product.id|slugify %}
-                                {{ qty }}
-                            {% endif%}
-                        {% endfor %}
+                        {{ quantities|key:product.id }}
                         </small>
                     <br><br>
                     {% endfor %}

@@ -53,18 +53,12 @@
                                         <option value="5">5</option>
                                     </select>
                                 </div>
-
-                                {% for id, qty in quantities.items %}
-                                    {% if id == product.id|slugify %}
-                                        <script type="text/javascript" data-id="{{ product.id }}" data-qty="{{ qty }}">
-                                            var data = document.currentScript.dataset;
-                                            var id = data.id;
-                                            var qty = data.qty;
-                                            document.getElementById(`select${id}`).value = qty;
-                                        </script>
-                                    {% endif%}
-                                {% endfor %}
-
+                                <script type="text/javascript" data-id="{{ product.id }}" data-qty="{{ quantities|key:product.id }}">
+                                    var data = document.currentScript.dataset;
+                                    var id = data.id;
+                                    var qty = data.qty;
+                                    document.getElementById(`select${id}`).value = qty;
+                                </script>
                             </div>
                             <br>
                             <button type="button" data-index="{{ product.id }}" class="btn btn-secondary update-cart">

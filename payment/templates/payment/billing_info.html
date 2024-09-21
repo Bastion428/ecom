@@ -32,11 +32,7 @@
                         {% endif %}
                         <br>
                         <small>Quantity:
-                        {% for id, qty in quantities.items %}
-                            {% if id == product.id|slugify %}
-                                {{ qty }}
-                            {% endif%}
-                        {% endfor %}
+                        {{ quantities|key:product.id }}
                         </small>
                     <br><br>
                     {% endfor %}
@@ -69,11 +65,16 @@
                     Billing Info
                 </div>
                 <div class="card-body">
-                    {{ billing_form.as_p }}
+                    <form method="POST" action="{% url 'process_order' %}" id="billing_form">
+                        {% csrf_token %}
+                        {{ billing_form.as_p }}
+                    </form>
                 </div>
             </div>
             <br>
-            <a href="#" class="btn btn-secondary">Pay Now</a>
+            <button type="submit" class="btn btn-secondary" form="billing_form">
+                Pay Now
+            </button>
         </div>
     </div>
 </div>
