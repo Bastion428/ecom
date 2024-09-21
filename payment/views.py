@@ -28,7 +28,7 @@ def process_order(request):
     quantities = cart.get_quants()
     totals = cart.cart_total()
 
-    payment_form = PaymentForm(request.POST)
+    # payment_form = PaymentForm(request.POST)
     my_shipping = request.session.get('my_shipping')
 
     # Create shipping address from session info
@@ -56,6 +56,10 @@ def process_order(request):
         quantity = quantities[str(product.id)]
         create_order_items = OrderItem(order=create_order, product=product, user=user, quantity=quantity, price=price)
         create_order_items.save()
+
+    # Delete items in cart
+    del request.session["session_key"]    # Delete cart info from session
+    cart.clear()                          # Deletes cart info from database
 
     messages.success(request, "Order Placed")
     return redirect('home')

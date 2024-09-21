@@ -172,7 +172,6 @@ def login_user(request):
 
                 for id, qty in converted_cart.items():
                     cart.db_add(id, qty)
-                cart.carty_update()
 
             messages.success(request, "Successfully logged in")
             return redirect('home')

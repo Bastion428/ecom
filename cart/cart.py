@@ -74,6 +74,11 @@ class Cart():
             self.session.modified = True
             self.carty_update()
 
+    def clear(self):
+        self.cart = {}
+        self.session.modified = True
+        self.carty_update()
+
     def carty_update(self):
         if self.request.user.is_authenticated:
             current_user = Profile.objects.filter(user__id=self.request.user.id)
