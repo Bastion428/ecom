@@ -6,17 +6,40 @@ from .forms import ShippingForm, PaymentForm
 from .models import ShippingAddress, Order, OrderItem
 from django.contrib import messages
 from django.core.paginator import Paginator
+import datetime
 
 
 @staff_member_required
 def orders(request, pk):
     order = Order.objects.get(id=pk)
     items = OrderItem.objects.filter(order=pk)
+
+    if request.POST:
+        order = Order.objects.filter(id=pk)
+        status = request.POST['shipping_status']
+        if status == 'true':
+            now = datetime.datetime.now()
+            order.update(shipped=True, date_shipped=now)
+        else:
+            order.update(shipped=False, date_shipped=None)
+
+        messages.success(request, "Shipping status updated")
+        return redirect('orders', pk=pk)
+
     return render(request, 'payment/orders.html', {'order': order, 'items': items})
 
 
 @staff_member_required
 def not_shipped_dash(request):
+    if request.POST:
+        num = request.POST['num']
+        now = datetime.datetime.now()
+        order = Order.objects.filter(id=num)
+        order.update(shipped=True, date_shipped=now)
+
+        messages.success(request, "Shipping status updated")
+        return redirect('not_shipped_dash')
+
     orders = Order.objects.filter(shipped=False)
     paginator = Paginator(orders, 10)
 
@@ -28,6 +51,14 @@ def not_shipped_dash(request):
 
 @staff_member_required
 def shipped_dash(request):
+    if request.POST:
+        num = request.POST['num']
+        order = Order.objects.filter(id=num)
+        order.update(shipped=False, date_shipped=None)
+
+        messages.success(request, "Shipping status updated")
+        return redirect('shipped_dash')
+
     orders = Order.objects.filter(shipped=True)
     paginator = Paginator(orders, 10)
 

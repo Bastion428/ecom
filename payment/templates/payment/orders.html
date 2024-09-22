@@ -11,7 +11,7 @@
                 <br><br>
                 <div class="card">
                     <div class="card-header">
-                      Order {{ order.id }} - S{{ order.amount_paid }}
+                      Order {{ order.id }} - ${{ order.amount_paid }}
                     </div>
                     <div class="card-body">
                         Date Ordered: {{ order.date_ordered }}<br>
@@ -25,6 +25,20 @@
                         {% for item in items %}
                             {{ item.product }} - {{ item.quantity }} - ${{ item.price }}<br>  
                         {% endfor %}
+                        <br><br>
+                        {% if not order.shipped %}
+                            <form method="POST" id="ship_form">
+                                {% csrf_token %}
+                                <input type="hidden" name="shipping_status" value="true">
+                                <button type="Submit" class="btn btn-success" id="do_ship">Mark as Shipped</button>
+                            </form>
+                        {% else %}
+                            <form method="POST" id="not_ship_form">
+                                {% csrf_token %}
+                                <input type="hidden" name="shipping_status" value="false">
+                                <button type="Submit" class="btn btn-danger" id="not_ship">Mark as Not Shipped</button>
+                            </form>
+                        {% endif %}
                     </div>
                 </div>
                 <br>
@@ -34,5 +48,23 @@
         </center>
     </div>
 </div>
+
+<script>
+    $(document).on('click', '#do_ship', function(e) {
+        e.preventDefault();
+        if (confirm("Are you sure you want to change the status to 'Shipped'?")) {
+            $("#ship_form").submit();
+        }
+    })
+</script>
+
+<script>
+    $(document).on('click', '#not_ship', function(e) {
+        e.preventDefault();
+        if (confirm("Are you sure you want to change the status to 'Not Shipped'?")) {
+            $("#not_ship_form").submit();
+        }
+    })
+</script>
 
 {% endblock %}

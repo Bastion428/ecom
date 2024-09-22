@@ -16,10 +16,10 @@
                       <tr>
                         <th scope="col">Order #</th>
                         <th scope="col">Customer Name</th>
-                        <th scope="col">Customer Email</th>
                         <th scope="col">Total Price</th>
                         <th scope="col">Date Ordered</th>
                         <th scope="col">Date Shipped</th>
+                        <th scope="col">Shipped</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -27,10 +27,17 @@
                       <tr>
                         <td><a href="{% url 'orders' order.id %}" style="text-decoration: none">{{ order.id }}</a></td>
                         <td>{{ order.full_name }}</td>
-                        <td>{{ order.email }}</td>
                         <td>${{ order.amount_paid }}</td>
                         <td>{{ order.date_ordered }}</td>
                         <td>{{ order.date_shipped }}</td>
+                        <td>
+                            <form method="POST">
+                                {% csrf_token %}
+                                <input type="hidden" name="shipping_status" value="false">
+                                <input type="hidden" name="num" value={{ order.id }}>
+                                <button type="submit" class="btn btn-danger btn-sm">Mark Not Shipped</button>
+                            </form>
+                        </td>
                       </tr>
                     {% endfor %}
                     </tbody>
