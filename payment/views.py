@@ -92,10 +92,10 @@ def billing_info(request):
     paypal_dict = {
         'business': settings.PAYPAL_RECEIVER_EMAIL,
         'amount': totals,
-        'items_name': 'Media Order',
+        'item_name': 'Media Order',
         'no_shipping': '2',
         'invoice': str(uuid.uuid4()),
-        'current-code': 'USD',
+        'currency_code': 'USD',
         'notify_url': 'https://{}{}'.format(host, reverse('paypal-ipn')),
         'return_url': 'https://{}{}'.format(host, reverse('payment_success')),
         'cancel_return': 'https://{}{}'.format(host, reverse('payment_failed')),
