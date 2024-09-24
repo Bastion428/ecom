@@ -4,10 +4,11 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.models import User
 from .forms import SignUpForm, UpdateUserForm, ChangePasswordFrom, UserInfoForm
+from ecom.decorators.required_methods import require_POST_redirect
 from payment.forms import ShippingForm
 from payment.models import ShippingAddress
 from django.contrib.auth.decorators import login_required
-from django.views.decorators.http import require_POST, require_GET, require_http_methods
+from django.views.decorators.http import require_GET, require_http_methods
 from django.http import JsonResponse
 from django.db.models import Q
 import json
@@ -27,7 +28,7 @@ def auto_complete(request):
     return JsonResponse({"suggestions": suggestions})
 
 
-@require_POST
+@require_POST_redirect
 def search(request):
     searched = request.POST['searched']
     if searched != '':

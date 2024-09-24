@@ -1,10 +1,10 @@
 from django.shortcuts import render, redirect
-from django.views.decorators.http import require_POST, require_GET
+from django.views.decorators.http import require_GET
 from django.contrib.admin.views.decorators import staff_member_required
 from cart.cart import Cart
 from .forms import ShippingForm, PaymentForm
 from .models import ShippingAddress, Order, OrderItem
-from store.models import Profile
+from ecom.decorators.required_methods import require_POST_redirect
 from django.contrib import messages
 from django.core.paginator import Paginator
 import datetime
@@ -82,10 +82,13 @@ def get_shipping(shipping_dict):
     zip_code = shipping_dict['shipping_zipcode']
     country = shipping_dict['shipping_country']
 
-    return f"{address1}\n{address2}\n{city} {state} {zip_code}\n{country}"
+    if not address2:
+        return f"{address1}\n{city}, {state} {zip_code}\n{country}"
+
+    return f"{address1}\n{address2}\n{city}, {state} {zip_code}\n{country}"
 
 
-@require_POST
+@require_POST_redirect
 def billing_info(request):
     my_shipping = request.POST
     request.session['my_shipping'] = my_shipping
@@ -135,15 +138,13 @@ def billing_info(request):
         create_order_items.save()
 
     # Delete items in cart from the database for logged in users
-    if request.user.is_authenticated:
-        current_user = Profile.objects.filter(user__id=request.user.id)
-        current_user.update(old_cart="")
+    cart.clear_cart_db()
 
     return render(request, "payment/billing_info.html", {'paypal_form': paypal_form, 'cart_products': cart_products, 'quantities': quantities,
                                                          'totals': totals, 'shipping_info': request.POST, "billing_form": billing_form})
 
 
-@require_POST
+@require_POST_redirect
 def process_order(request):
     cart = Cart(request)
     cart_products = cart.get_prods()
@@ -173,13 +174,17 @@ def process_order(request):
         create_order_items.save()
 
     # Delete items in cart
-    cart.clear()
+    cart.clear_cart()
 
     messages.success(request, "Order Placed")
     return redirect('home')
 
 
 def payment_success(request):
+    # Delete the browser cart (session variable)
+    cart = Cart(request)
+    cart.clear_cart_sess()
+
     return render(request, "payment/payment_success.html", {})
 
 
