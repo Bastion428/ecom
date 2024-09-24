@@ -12,12 +12,19 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 import os
-# from dotenv import load_dotenv
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+
+# When local
 # load_dotenv()
+# DB_TOP_SECRET_PASS = os.environ.get('DB_TOP_SECRET_PASS')
+
+
+# When live
+DB_TOP_SECRET_PASS = os.environ['DB_TOP_SECRET_PASS']
 
 
 # Quick-start development settings - unsuitable for production
@@ -96,7 +103,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'railway',
         'USER': 'postgres',
-        'PASSWORD': os.environ['DB_TOP_SECRET_PASS'],
+        'PASSWORD': DB_TOP_SECRET_PASS,
         'HOST': 'autorack.proxy.rlwy.net',
         'PORT': '47568',
     }
@@ -144,6 +151,7 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
 MEDIA_URL = 'media/'
+# MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_ROOT = os.environ["RAILWAY_VOLUME_MOUNT_PATH"]
 
 # Default primary key field type
