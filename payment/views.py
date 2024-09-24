@@ -191,7 +191,7 @@ def payment_failed(request):
     return render(request, "payment/payment_failed.html", {})
 
 
-@required_methods_redirect
+@required_methods_redirect(allowed_methods='GET')
 def checkout(request):
     cart = Cart(request)
     cart_products = cart.get_prods()

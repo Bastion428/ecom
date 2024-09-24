@@ -3,9 +3,9 @@ from django.contrib import messages
 from functools import wraps
 
 
-def required_methods_redirect(allowed_methods=['GET']):
+def required_methods_redirect(allowed_methods):
     def decorator(func):
-        """Redirects when method is not POST"""
+        """Redirects when method is not in the allowed methods. GET is allowed by default."""
         wraps(func)
         def wrapper(request, *args, **kwargs):  # noqa: E306
             method_list = [allowed_methods] if isinstance(allowed_methods, str) else allowed_methods
