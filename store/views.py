@@ -4,7 +4,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.models import User
 from .forms import SignUpForm, UpdateUserForm, ChangePasswordFrom, UserInfoForm
-from ecom.decorators.required_methods import require_POST_redirect
+from ecom.decorators.required_methods import required_methods_redirect
 from payment.forms import ShippingForm
 from payment.models import ShippingAddress
 from django.contrib.auth.decorators import login_required
@@ -28,7 +28,7 @@ def auto_complete(request):
     return JsonResponse({"suggestions": suggestions})
 
 
-@require_POST_redirect
+@required_methods_redirect(allowed_methods='POST')
 def search(request):
     searched = request.POST['searched']
     if searched != '':
@@ -43,7 +43,7 @@ def search(request):
 
 
 @login_required
-@require_http_methods(['GET', 'POST'])
+@required_methods_redirect(allowed_methods=['GET', 'POST'])
 def update_info(request):
     current_user = Profile.objects.get(user__id=request.user.id)
     shipping_user = ShippingAddress.objects.get(user__id=request.user.id)

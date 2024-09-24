@@ -1,10 +1,9 @@
 from django.shortcuts import render, redirect
-from django.views.decorators.http import require_GET
 from django.contrib.admin.views.decorators import staff_member_required
 from cart.cart import Cart
 from .forms import ShippingForm, PaymentForm
 from .models import ShippingAddress, Order, OrderItem
-from ecom.decorators.required_methods import require_POST_redirect
+from ecom.decorators.required_methods import required_methods_redirect
 from django.contrib import messages
 from django.core.paginator import Paginator
 import datetime
@@ -15,7 +14,7 @@ from django.conf import settings
 import uuid  # unique user id for duplicate orders
 
 
-@staff_member_required
+@staff_member_required(login_url='login')
 def orders(request, pk):
     order = Order.objects.get(id=pk)
     items = OrderItem.objects.filter(order=pk)
@@ -35,7 +34,7 @@ def orders(request, pk):
     return render(request, 'payment/orders.html', {'order': order, 'items': items})
 
 
-@staff_member_required
+@staff_member_required(login_url=settings.LOGIN_URL)
 def not_shipped_dash(request):
     if request.POST:
         num = request.POST['num']
@@ -55,7 +54,7 @@ def not_shipped_dash(request):
     return render(request, "payment/not_shipped_dash.html", {'orders': orders})
 
 
-@staff_member_required
+@staff_member_required(login_url=settings.LOGIN_URL)
 def shipped_dash(request):
     if request.POST:
         num = request.POST['num']
@@ -88,7 +87,7 @@ def get_shipping(shipping_dict):
     return f"{address1}\n{address2}\n{city}, {state} {zip_code}\n{country}"
 
 
-@require_POST_redirect
+@required_methods_redirect(allowed_methods='POST')
 def billing_info(request):
     my_shipping = request.POST
     request.session['my_shipping'] = my_shipping
@@ -144,7 +143,7 @@ def billing_info(request):
                                                          'totals': totals, 'shipping_info': request.POST, "billing_form": billing_form})
 
 
-@require_POST_redirect
+@required_methods_redirect(allowed_methods='POST')
 def process_order(request):
     cart = Cart(request)
     cart_products = cart.get_prods()
@@ -192,7 +191,7 @@ def payment_failed(request):
     return render(request, "payment/payment_failed.html", {})
 
 
-@require_GET
+@required_methods_redirect
 def checkout(request):
     cart = Cart(request)
     cart_products = cart.get_prods()

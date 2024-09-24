@@ -3,13 +3,14 @@ from django.contrib import messages
 import functools
 
 
-def require_POST_redirect(func):
+def required_methods_redirect(func, allowed_methods=['GET']):
     """Redirects when method is not POST"""
     @functools.wraps(func)
     def wrapper(request, *args, **kwargs):
-        if request.method == 'POST':
+        method_list = [allowed_methods] if isinstance(allowed_methods, str) else allowed_methods
+        if request.method in method_list:
             return func(request, *args, **kwargs)
         else:
-            messages.error(request, f'{request.method} in not an accepted method. Access denied')
+            messages.error(request, f'{request.method} is not an accepted method for the requested page. Access denied')
             return redirect('home')
     return wrapper
