@@ -4,6 +4,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from cart.cart import Cart
 from .forms import ShippingForm, PaymentForm
 from .models import ShippingAddress, Order, OrderItem
+from store.models import Profile
 from django.contrib import messages
 from django.core.paginator import Paginator
 import datetime
@@ -72,8 +73,23 @@ def shipped_dash(request):
     return render(request, "payment/shipped_dash.html", {'orders': orders})
 
 
+def get_shipping(shipping_dict):
+    # Create shipping address
+    address1 = shipping_dict['shipping_address1']
+    address2 = shipping_dict['shipping_address2']
+    city = shipping_dict['shipping_city']
+    state = shipping_dict['shipping_state']
+    zip_code = shipping_dict['shipping_zipcode']
+    country = shipping_dict['shipping_country']
+
+    return f"{address1}\n{address2}\n{city} {state} {zip_code}\n{country}"
+
+
 @require_POST
 def billing_info(request):
+    my_shipping = request.POST
+    request.session['my_shipping'] = my_shipping
+
     form = ShippingForm(request.POST)
     if not form.is_valid():
         for error in list(form.errors.values()):
@@ -85,16 +101,16 @@ def billing_info(request):
     quantities = cart.get_quants()
     totals = cart.cart_total()
 
-    request.session['my_shipping'] = request.POST
-
     # Paypal section
     host = request.get_host()
+    my_invoice = str(uuid.uuid4())
+
     paypal_dict = {
         'business': settings.PAYPAL_RECEIVER_EMAIL,
         'amount': totals,
         'item_name': 'Media Order',
         'no_shipping': '2',
-        'invoice': str(uuid.uuid4()),
+        'invoice': my_invoice,
         'currency_code': 'USD',
         'notify_url': 'https://{}{}'.format(host, reverse('paypal-ipn')),
         'return_url': 'https://{}{}'.format(host, reverse('payment_success')),
@@ -102,8 +118,27 @@ def billing_info(request):
     }
 
     paypal_form = PayPalPaymentsForm(initial=paypal_dict)
+    shipping_address = get_shipping(my_shipping)
 
     billing_form = PaymentForm()
+    # Create an order
+    user = request.user if request.user.is_authenticated else None
+    create_order = Order(user=user, full_name=my_shipping['shipping_full_name'], email=my_shipping['shipping_email'], shipping_address=shipping_address, amount_paid=totals, invoice=my_invoice)
+    create_order.full_clean()
+    create_order.save()
+
+    # Add order items
+    for product in cart_products:
+        price = product.sale_price if product.is_sale else product.price
+        quantity = quantities[str(product.id)]
+        create_order_items = OrderItem(order=create_order, product=product, user=user, quantity=quantity, price=price)
+        create_order_items.save()
+
+    # Delete items in cart from the database for logged in users
+    if request.user.is_authenticated:
+        current_user = Profile.objects.filter(user__id=request.user.id)
+        current_user.update(old_cart="")
+
     return render(request, "payment/billing_info.html", {'paypal_form': paypal_form, 'cart_products': cart_products, 'quantities': quantities,
                                                          'totals': totals, 'shipping_info': request.POST, "billing_form": billing_form})
 
@@ -117,15 +152,7 @@ def process_order(request):
 
     # payment_form = PaymentForm(request.POST)
     my_shipping = request.session.get('my_shipping')
-
-    # Create shipping address from session info
-    address1 = my_shipping['shipping_address1']
-    address2 = my_shipping['shipping_address2']
-    city = my_shipping['shipping_city']
-    state = my_shipping['shipping_state']
-    zip_code = my_shipping['shipping_zipcode']
-    country = my_shipping['shipping_country']
-    shipping_address = f"{address1}\n{address2}\n{city} {state} {zip_code}\n{country}"
+    shipping_address = get_shipping(my_shipping)
 
     # Gather rest of order info
     full_name = my_shipping['shipping_full_name']
@@ -163,7 +190,6 @@ def payment_failed(request):
 @require_GET
 def checkout(request):
     cart = Cart(request)
-    print(request.method)
     cart_products = cart.get_prods()
     quantities = cart.get_quants()
     totals = cart.cart_total()
