@@ -5,7 +5,7 @@ from functools import wraps
 
 def required_methods_redirect(allowed_methods):
     def decorator(func):
-        """Redirects when method is not in the allowed methods. GET is allowed by default."""
+        """Redirects when method(s) not in the allowed methods. If more than one method, allowed methods must be list"""
         wraps(func)
         def wrapper(request, *args, **kwargs):  # noqa: E306
             method_list = [allowed_methods] if isinstance(allowed_methods, str) else allowed_methods

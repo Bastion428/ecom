@@ -16,7 +16,7 @@
                     <div class="card-body">
                         Date Ordered: {{ order.date_ordered }}<br>
                         {% if order.date_shipped %}
-                            Date Shipped: {{ order.date_shipped }}<br>
+                        Date Shipped: {{ order.date_shipped }}<br>
                         {% endif %}
                         Email: {{ order.email }}<br><br>
                         <strong>Shipping Info</strong><br>
@@ -26,18 +26,20 @@
                             {{ item.product }} - {{ item.quantity }} - ${{ item.price }}<br>  
                         {% endfor %}
                         <br><br>
-                        {% if not order.shipped %}
-                            <form method="POST" id="ship_form">
-                                {% csrf_token %}
-                                <input type="hidden" name="shipping_status" value="true">
-                                <button type="Submit" class="btn btn-success" id="do_ship">Mark as Shipped</button>
-                            </form>
-                        {% else %}
-                            <form method="POST" id="not_ship_form">
-                                {% csrf_token %}
-                                <input type="hidden" name="shipping_status" value="false">
-                                <button type="Submit" class="btn btn-danger" id="not_ship">Mark as Not Shipped</button>
-                            </form>
+                        {% if order.paid %}
+                            {% if not order.shipped %}
+                                <form method="POST" id="ship_form">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="shipping_status" value="true">
+                                    <button type="Submit" class="btn btn-success" id="do_ship">Mark as Shipped</button>
+                                </form>
+                            {% else %}
+                                <form method="POST" id="not_ship_form">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="shipping_status" value="false">
+                                    <button type="Submit" class="btn btn-danger" id="not_ship">Mark as Not Shipped</button>
+                                </form>
+                            {% endif %}
                         {% endif %}
                     </div>
                 </div>
