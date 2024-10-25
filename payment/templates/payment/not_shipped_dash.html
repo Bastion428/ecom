@@ -23,7 +23,7 @@
                       </tr>
                     </thead>
                     <tbody>
-                    {% for order in orders|sort(attribute='id') %}
+                    {% for order in orders %}
                       <tr>
                         <td><a href="{% url 'orders' order.id%}" style="text-decoration: none">{{ order.id }}</a></td>
                         <td>{{ order.full_name }}</td>
