@@ -45,7 +45,7 @@ def not_shipped_dash(request):
         messages.success(request, "Shipping status updated")
         return redirect('not_shipped_dash')
 
-    orders = Order.objects.filter(shipped=False)
+    orders = Order.objects.filter(shipped=False, paid=True)
     paginator = Paginator(orders, 10)
 
     page_num = request.GET.get('page')
