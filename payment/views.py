@@ -167,8 +167,11 @@ def process_order(request):
 def payment_success(request):
     try:
         invoice = request.session.get('my_invoice')
-        Order.objects.get(invoice=invoice)
+        order = Order.objects.get(invoice=invoice)
     except Order.DoesNotExist:
+        order = None
+
+    if order:
         messages.error(request, "Order has already been made")
         return redirect('home')
 
