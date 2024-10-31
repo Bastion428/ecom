@@ -107,7 +107,7 @@ def billing_info(request):
     host = request.get_host()
 
     my_invoice = str(uuid.uuid4())
-    request.session['invoice'] = my_invoice
+    request.session['my_invoice'] = my_invoice
 
     paypal_dict = {
         'business': settings.PAYPAL_RECEIVER_EMAIL,
