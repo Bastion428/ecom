@@ -44,7 +44,9 @@ class Order(models.Model):
     date_shipped = models.DateTimeField(blank=True, null=True)
     # Paypal Invoice and Paid T/F
     invoice = models.CharField(max_length=250, null=True, blank=True)
-    paid = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ['pk']
 
     def __str__(self):
         return f'Order - {str(self.id)}'

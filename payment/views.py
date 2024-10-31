@@ -165,14 +165,20 @@ def process_order(request):
 
 
 def payment_success(request):
+    try:
+        invoice = request.session.get('my_invoice')
+        Order.objects.get(invoice=invoice)
+    except Order.DoesNotExist:
+        messages.error(request, "Order has already been made")
+        return redirect('home')
+
+    my_shipping = request.session.get('my_shipping')
+    shipping_address = get_shipping(my_shipping)
+
     cart = Cart(request)
     cart_products = cart.get_prods()
     quantities = cart.get_quants()
     totals = cart.cart_total()
-
-    my_shipping = request.session.get('my_shipping')
-    invoice = request.session.get('my_invoice')
-    shipping_address = get_shipping(my_shipping)
 
     # Gather rest of order info
     full_name = my_shipping['shipping_full_name']
@@ -181,7 +187,7 @@ def payment_success(request):
 
     # Create an order
     user = request.user if request.user.is_authenticated else None
-    create_order = Order(user=user, full_name=full_name, email=email, shipping_address=shipping_address, amount_paid=amount_paid, invoice=invoice, paid=True)
+    create_order = Order(user=user, full_name=full_name, email=email, shipping_address=shipping_address, amount_paid=amount_paid, invoice=invoice)
     create_order.full_clean()
     create_order.save()
 
