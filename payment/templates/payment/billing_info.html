@@ -72,7 +72,6 @@
                 <div class="card-body">
                     <form method="POST" action="{% url 'process_order' %}" id="billing_form">
                         {% csrf_token %}
-                        {{ billing_form.as_p }}
                     </form>
                 </div>
             </div>
