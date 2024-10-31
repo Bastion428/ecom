@@ -28,6 +28,8 @@ DB_TOP_SECRET_PASS = os.environ['DB_TOP_SECRET_PASS']
 STRIPE_SECRET_KEY = os.environ['STRIPE_SECRET_KEY']
 SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
 
+STRIPE_PUBLIC_KEY = "pk_test_51QG4B9LKyLlu3FHmaZLW7IUqn6KOpZBBiNrlT993oksvqI1Ds9pgPPcxNBWEvrkgMGOJ3J8izTmexlgb4uqemmvY00CCOhgqeZ"
+
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: don't run with debug turned on in production!

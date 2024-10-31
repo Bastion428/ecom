@@ -7,6 +7,8 @@ from ecom.decorators.required_methods import required_methods_redirect
 from django.contrib import messages
 from django.core.paginator import Paginator
 import datetime
+# Stipe imports
+import stripe
 # Paypal imports
 from django.urls import reverse
 from paypal.standard.forms import PayPalPaymentsForm
@@ -103,9 +105,11 @@ def billing_info(request):
     quantities = cart.get_quants()
     totals = cart.cart_total()
 
-    # Paypal section
+    # Paypal variable
     host = request.get_host()
+
     my_invoice = str(uuid.uuid4())
+    request.session['my_invoice'] = my_invoice
 
     paypal_dict = {
         'business': settings.PAYPAL_RECEIVER_EMAIL,
@@ -144,6 +148,24 @@ def billing_info(request):
                                                          'totals': totals, 'shipping_info': request.POST, "billing_form": billing_form})
 
 
+def items_to_line_items(items):
+    line_items = []
+    for item in items:
+        item_dict = {
+            'price_data': {
+                'currency': 'USD',
+                'unit_amount_decimal': item.price,
+                'product_data': {
+                    'name': item.product.name,
+                    'images': settings.MEDIA_ROOT + item.product.image
+                },
+            },
+            'quantity': item.quantity
+        }
+        line_items.append(item_dict)
+    return line_items
+
+
 @required_methods_redirect(allowed_methods='POST')
 def process_order(request):
     # payment_form = PaymentForm(request.POST)
@@ -151,8 +173,27 @@ def process_order(request):
     # Delete items in cart
     # cart.clear_cart()
 
+    stripe.api_key = settings.STRIPE_SECRET_KEY
+
+    try:
+        order = Order.objects.get(invoice=request.session['my_invoice'])
+    except Order.DoesNotExist:
+        messages.error(request, "There was an error processing your payment")
+        return redirect('payment_failed')
+
+    items = OrderItem.objects.filter(order=order)
+    line_items = items_to_line_items(items)
+
+    checkout_session = stripe.checkout.Session.create(
+        payment_method_types=['card'],
+        line_items=line_items,
+        mode='payment',
+        success_url=request.build_absolute_uri(reverse("payment_success")),
+        cancel_url=request.request.build_absolute_uri(reverse("payment_failed"))
+    )
+
     messages.success(request, "Order Placed")
-    return redirect('home')
+    return redirect(checkout_session.url, code=303)
 
 
 def payment_success(request):
