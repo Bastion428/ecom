@@ -46,7 +46,7 @@ class Order(models.Model):
     paid = models.BooleanField(default=False)
 
     class Meta:
-        ordering = ['pk', '-paid']
+        ordering = ['pk', 'paid']
 
     def __str__(self):
         return f'Order - {str(self.id)}'
