@@ -18,6 +18,7 @@
                         <th scope="col">Customer Name</th>
                         <th scope="col">Total Price</th>
                         <th scope="col">Date Ordered</th>
+                        <th scope="col">Paid</th>
                         <th scope="col">Shipped</th>
                       </tr>
                     </thead>
@@ -28,13 +29,16 @@
                         <td>{{ order.full_name }}</td>
                         <td>${{ order.amount_paid }}</td>
                         <td>{{ order.date_ordered }}</td>
+                        <td>{{ order.paid }}</td>
                         <td>
-                            <form method="POST">
-                                {% csrf_token %}
-                                <input type="hidden" name="shipping_status" value="true">
-                                <input type="hidden" name="num" value={{ order.id }}>
-                                <button type="submit" class="btn btn-success btn-sm">Mark Shipped</button>
-                            </form>
+                            {% if order.paid %}
+                                <form method="POST">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="shipping_status" value="true">
+                                    <input type="hidden" name="num" value={{ order.id }}>
+                                    <button type="submit" class="btn btn-success btn-sm">Mark Shipped</button>
+                                </form>
+                            {% endif %}
                         </td>
                       </tr>
                     {% endfor %}
