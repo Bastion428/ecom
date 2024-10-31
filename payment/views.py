@@ -103,9 +103,11 @@ def billing_info(request):
     quantities = cart.get_quants()
     totals = cart.cart_total()
 
-    # Paypal section
+    # Needed for Paypal
     host = request.get_host()
+
     my_invoice = str(uuid.uuid4())
+    request.session['invoice'] = my_invoice
 
     paypal_dict = {
         'business': settings.PAYPAL_RECEIVER_EMAIL,
@@ -120,24 +122,7 @@ def billing_info(request):
     }
 
     paypal_form = PayPalPaymentsForm(initial=paypal_dict)
-    shipping_address = get_shipping(my_shipping)
-
     billing_form = PaymentForm()
-    # Create an order
-    user = request.user if request.user.is_authenticated else None
-    create_order = Order(user=user, full_name=my_shipping['shipping_full_name'], email=my_shipping['shipping_email'], shipping_address=shipping_address, amount_paid=totals, invoice=my_invoice)
-    create_order.full_clean()
-    create_order.save()
-
-    # Add order items
-    for product in cart_products:
-        price = product.sale_price if product.is_sale else product.price
-        quantity = quantities[str(product.id)]
-        create_order_items = OrderItem(order=create_order, product=product, user=user, quantity=quantity, price=price)
-        create_order_items.save()
-
-    # Delete items in cart from the database for logged in users
-    cart.clear_cart_db()
 
     return render(request, "payment/billing_info.html", {'paypal_form': paypal_form, 'cart_products': cart_products, 'quantities': quantities,
                                                          'totals': totals, 'shipping_info': request.POST, "billing_form": billing_form})
@@ -180,9 +165,38 @@ def process_order(request):
 
 
 def payment_success(request):
-    # Delete the browser cart (session variable)
     cart = Cart(request)
-    cart.clear_cart_sess()
+    cart_products = cart.get_prods()
+    quantities = cart.get_quants()
+    totals = cart.cart_total()
+
+    my_shipping = request.session.get('my_shipping')
+    invoice = request.session.get('my_invoice')
+    shipping_address = get_shipping(my_shipping)
+
+    # Gather rest of order info
+    full_name = my_shipping['shipping_full_name']
+    email = my_shipping['shipping_email']
+    amount_paid = totals
+
+    # Create an order
+    user = request.user if request.user.is_authenticated else None
+    create_order = Order(user=user, full_name=full_name, email=email, shipping_address=shipping_address, amount_paid=amount_paid, invoice=invoice, paid=True)
+    create_order.full_clean()
+    create_order.save()
+
+    # Add order items
+    for product in cart_products:
+        price = product.sale_price if product.is_sale else product.price
+        quantity = quantities[str(product.id)]
+        create_order_items = OrderItem(order=create_order, product=product, user=user, quantity=quantity, price=price)
+        create_order_items.full_clean()
+        create_order_items.save()
+
+    # Delete items in cart
+    cart.clear_cart()
+
+    messages.success(request, "Payment was successful and your order has been placed")
 
     return render(request, "payment/payment_success.html", {})
 
