@@ -17,21 +17,18 @@ from dotenv import load_dotenv
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # When local
 # load_dotenv()
 # DB_TOP_SECRET_PASS = os.environ.get('DB_TOP_SECRET_PASS')
+# STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY')
+# SECRET_KEY  = os.environ.get('DJANGO_SECRET_KEY')
 
-
-# When live
+# Live
 DB_TOP_SECRET_PASS = os.environ['DB_TOP_SECRET_PASS']
+STRIPE_SECRET_KEY = os.environ['STRIPE_SECRET_KEY']
+SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
 
-
-# Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-h%u364q4=q(rqkx2fh20n^0-ih3@6ahpdh-_qkxq*nqa9^954n'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
@@ -39,6 +36,9 @@ DEBUG = False
 ALLOWED_HOSTS = ['ecom-production-8170.up.railway.app', 'https://ecom-production-8170.up.railway.app']
 CSRF_TRUSTED_ORIGINS = ['https://ecom-production-8170.up.railway.app']
 
+CSRF_COOKIE_SECURE = True
+
+SESSION_COOKIE_SECURE = True
 
 # Application definition
 
