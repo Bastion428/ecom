@@ -7,6 +7,7 @@ from ecom.decorators.required_methods import required_methods_redirect
 from django.contrib import messages
 from django.core.paginator import Paginator
 import datetime
+from decimal import Decimal
 # Stipe imports
 import stripe
 # Paypal imports
@@ -105,9 +106,7 @@ def billing_info(request):
     quantities = cart.get_quants()
     totals = cart.cart_total()
 
-    # Paypal variable
     host = request.get_host()
-
     my_invoice = str(uuid.uuid4())
     request.session['my_invoice'] = my_invoice
 
@@ -154,13 +153,13 @@ def items_to_line_items(items):
         item_dict = {
             'price_data': {
                 'currency': 'USD',
-                'unit_amount_decimal': item.price,
+                'unit_amount_decimal': item.price * Decimal('100'),
                 'product_data': {
                     'name': item.product.name
                     # 'images': settings.MEDIA_ROOT + item.product.image
                 },
             },
-            'quantity': item.quantity
+            'quantity': item.quantity,
         }
         line_items.append(item_dict)
     return line_items
@@ -188,12 +187,13 @@ def process_order(request):
     line_items = items_to_line_items(items)
     print(line_items)
 
+    host = request.get_host()
     checkout_session = stripe.checkout.Session.create(
         payment_method_types=['card'],
         line_items=line_items,
         mode='payment',
-        success_url=request.build_absolute_uri(reverse("payment_success")),
-        cancel_url=request.build_absolute_uri(reverse("payment_failed"))
+        success_url='https://{}{}'.format(host, reverse('payment_success')),
+        cancel_url='https://{}{}'.format(host, reverse('payment_failed')),
     )
 
     print("Got this far")
