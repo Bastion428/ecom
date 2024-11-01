@@ -147,7 +147,7 @@ def billing_info(request):
                                                          'totals': totals, 'shipping_info': request.POST, "billing_form": billing_form})
 
 
-def items_to_line_items(items):
+def items_to_line_items(items, host):
     line_items = []
     for item in items:
         item_dict = {
@@ -155,8 +155,8 @@ def items_to_line_items(items):
                 'currency': 'USD',
                 'unit_amount_decimal': item.price * Decimal('100'),
                 'product_data': {
-                    'name': item.product.name
-                    # 'images': settings.MEDIA_ROOT + item.product.image
+                    'name': item.product.name,
+                    'images': 'https://{}{}'.format(host + '/media', item.product.image),
                 },
             },
             'quantity': item.quantity,
@@ -183,11 +183,9 @@ def process_order(request):
         return redirect('payment_failed')
 
     items = OrderItem.objects.filter(order=order.pk)
-    print(items)
-    line_items = items_to_line_items(items)
-    print(line_items)
-
     host = request.get_host()
+    line_items = items_to_line_items(items, host)
+
     checkout_session = stripe.checkout.Session.create(
         payment_method_types=['card'],
         line_items=line_items,
@@ -195,8 +193,6 @@ def process_order(request):
         success_url='https://{}{}'.format(host, reverse('payment_success')),
         cancel_url='https://{}{}'.format(host, reverse('payment_failed')),
     )
-
-    print("Got this far")
 
     messages.success(request, "Order Placed")
     return redirect(checkout_session.url, code=303)
