@@ -156,14 +156,12 @@ def items_to_line_items(items, host):
                 'unit_amount_decimal': item.price * Decimal('100'),
                 'product_data': {
                     'name': item.product.name,
-                    # images': 'https://{}{}'.format(host + '/media', item.product.image),
+                    'images': 'https://{}{}'.format(host + '/media/', item.product.image),
                 },
             },
             'quantity': item.quantity,
         }
         line_items.append(item_dict)
-        print(host)
-        print('https://{}{}'.format(host + '/media', item.product.image))
     return line_items
 
 
