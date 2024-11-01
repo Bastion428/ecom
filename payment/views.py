@@ -156,8 +156,7 @@ def items_to_line_items(items):
                 'currency': 'USD',
                 'unit_amount_decimal': item.price,
                 'product_data': {
-                    'name': item.product.name,
-                    'images': settings.MEDIA_ROOT + item.product.image
+                    'name': item.product.name
                 },
             },
             'quantity': item.quantity
@@ -181,7 +180,7 @@ def process_order(request):
         messages.error(request, "There was an error processing your payment")
         return redirect('payment_failed')
 
-    items = OrderItem.objects.filter(order=order)
+    items = OrderItem.objects.filter(order=order.pk)
     line_items = items_to_line_items(items)
 
     checkout_session = stripe.checkout.Session.create(
