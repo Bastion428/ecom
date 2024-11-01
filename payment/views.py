@@ -157,6 +157,7 @@ def items_to_line_items(items):
                 'unit_amount_decimal': item.price,
                 'product_data': {
                     'name': item.product.name
+                    # 'images': settings.MEDIA_ROOT + item.product.image
                 },
             },
             'quantity': item.quantity
@@ -174,36 +175,21 @@ def process_order(request):
 
     stripe.api_key = settings.STRIPE_SECRET_KEY
 
-    print('past the stripe api key')
-
     try:
         order = Order.objects.get(invoice=request.session['my_invoice'])
     except Order.DoesNotExist:
         messages.error(request, "There was an error processing your payment")
         return redirect('payment_failed')
 
-    print('got past the order stuff')
-
-    # items = OrderItem.objects.filter(order=order.pk)
-    # line_items = items_to_line_items(items)
+    items = OrderItem.objects.filter(order=order.pk)
+    line_items = items_to_line_items(items)
 
     checkout_session = stripe.checkout.Session.create(
         payment_method_types=['card'],
-        line_items=[
-            {
-                'price_data': {
-                    'currency': 'USD',
-                    'unit_amount_decimal': 2000,
-                    'product_data': {
-                        'name': 'test_item'
-                    },
-                },
-                'quantity': 21
-            }
-        ],
+        line_items=line_items,
         mode='payment',
         success_url=request.build_absolute_uri(reverse("payment_success")),
-        cancel_url=request.request.build_absolute_uri(reverse("payment_failed"))
+        cancel_url=request.build_absolute_uri(reverse("payment_failed"))
     )
 
     messages.success(request, "Order Placed")
