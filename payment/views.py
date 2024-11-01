@@ -177,12 +177,16 @@ def process_order(request):
 
     try:
         order = Order.objects.get(invoice=request.session['my_invoice'])
+        print(request.session['my_invoice'])
+        print(order)
     except Order.DoesNotExist:
         messages.error(request, "There was an error processing your payment")
         return redirect('payment_failed')
 
     items = OrderItem.objects.filter(order=order.pk)
+    print(items)
     line_items = items_to_line_items(items)
+    print(line_items)
 
     checkout_session = stripe.checkout.Session.create(
         payment_method_types=['card'],
@@ -191,6 +195,8 @@ def process_order(request):
         success_url=request.build_absolute_uri(reverse("payment_success")),
         cancel_url=request.build_absolute_uri(reverse("payment_failed"))
     )
+
+    print("Got this far")
 
     messages.success(request, "Order Placed")
     return redirect(checkout_session.url, code=303)
