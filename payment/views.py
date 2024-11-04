@@ -16,6 +16,8 @@ from paypal.standard.forms import PayPalPaymentsForm
 from django.conf import settings
 import uuid  # unique user id for duplicate orders
 
+stripe.api_key = settings.STRIPE_SECRET_KEY
+
 
 @staff_member_required(login_url='login')
 def orders(request, pk):
@@ -172,10 +174,9 @@ def process_order(request):
     # Delete items in cart
     # cart.clear_cart()
 
-    stripe.api_key = settings.STRIPE_SECRET_KEY
-
+    my_invoice = request.session['my_invoice']
     try:
-        order = Order.objects.get(invoice=request.session['my_invoice'])
+        order = Order.objects.get(invoice=my_invoice)
     except Order.DoesNotExist:
         messages.error(request, "There was an error processing your payment")
         return redirect('payment_failed')
@@ -187,12 +188,12 @@ def process_order(request):
     checkout_session = stripe.checkout.Session.create(
         payment_method_types=['card'],
         line_items=line_items,
+        invoice=my_invoice,
         mode='payment',
         success_url='https://{}{}'.format(host, reverse('payment_success')),
         cancel_url='https://{}{}'.format(host, reverse('payment_failed')),
     )
 
-    messages.success(request, "Order Placed")
     return redirect(checkout_session.url, code=303)
 
 

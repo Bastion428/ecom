@@ -21,11 +21,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # load_dotenv()
 # DB_TOP_SECRET_PASS = os.environ.get('DB_TOP_SECRET_PASS')
 # STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY')
+# STRIPE_WEBHOOK_SECRET_KEY = os.get('STRIPE_WEBHOOK_SECRET_KEY')
 # SECRET_KEY  = os.environ.get('DJANGO_SECRET_KEY')
 
 # Live
 DB_TOP_SECRET_PASS = os.environ['DB_TOP_SECRET_PASS']
 STRIPE_SECRET_KEY = os.environ['STRIPE_SECRET_KEY']
+STRIPE_WEBHOOK_SECRET_KEY = os.environ['STRIPE_WEBHOOK_SECRET_KEY']
 SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
 
 STRIPE_PUBLIC_KEY = "pk_test_51QG4B9LKyLlu3FHmaZLW7IUqn6KOpZBBiNrlT993oksvqI1Ds9pgPPcxNBWEvrkgMGOJ3J8izTmexlgb4uqemmvY00CCOhgqeZ"
