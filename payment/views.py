@@ -188,7 +188,7 @@ def process_order(request):
     checkout_session = stripe.checkout.Session.create(
         payment_method_types=['card'],
         line_items=line_items,
-        invoice=my_invoice,
+        metadata={'invoice': my_invoice},
         mode='payment',
         success_url='https://{}{}'.format(host, reverse('payment_success')),
         cancel_url='https://{}{}'.format(host, reverse('payment_failed')),

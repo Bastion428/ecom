@@ -51,7 +51,7 @@ def stripe_webhook(request):
     # Handle the event
     if event.type == 'checkout.session.completed':
         session = event.data.object
-        my_invoice = session.invoice
+        my_invoice = session.metadata['invoice']
 
         my_order = Order.objects.get(invoice=my_invoice)
         my_order.paid = True
