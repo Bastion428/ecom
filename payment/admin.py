@@ -21,7 +21,7 @@ class OrderAdmin(admin.ModelAdmin):
 
 class StripeOrderAdmin(admin.ModelAdmin):
     model = StripeOrder
-    readonly_fields = ["date_ordered", "invoice", "date_ordered"]
+    readonly_fields = ["invoice", "date_ordered", "amount_paid"]
 
 
 admin.site.unregister(Order)
