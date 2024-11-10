@@ -8,7 +8,7 @@ from django.conf import settings
 import time
 import json
 import stripe
-from .models import Order
+from .models import Order, StripeOrder
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
@@ -56,6 +56,9 @@ def stripe_webhook(request):
         my_order = Order.objects.get(invoice=my_invoice)
         my_order.paid = True
         my_order.save()
+
+        stripe_order = StripeOrder(invoice=my_invoice, amount_paid=my_order.amount_paid)
+        stripe_order.save()
     else:
         print('Unhandled event type {}'.format(event.type))
 

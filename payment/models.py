@@ -71,3 +71,11 @@ class OrderItem(models.Model):
 
     def __str__(self):
         return f'Order Item - {str(self.id)}'
+
+
+class StripeOrder(models.Model):
+    invoice = models.CharField(max_length=250, null=True, blank=True)
+    amount_paid = models.DecimalField(max_digits=10, decimal_places=2)
+
+    def __str__(self):
+        return f'Stripe Order - {str(self.id)}'
