@@ -1,10 +1,11 @@
 from django.contrib import admin
-from .models import ShippingAddress, Order, OrderItem
+from .models import ShippingAddress, Order, OrderItem, StripeOrder
 
 
 admin.site.register(ShippingAddress)
 admin.site.register(OrderItem)
 admin.site.register(Order)
+admin.site.register(StripeOrder)
 
 
 class OrderItemInline(admin.StackedInline):
@@ -18,5 +19,12 @@ class OrderAdmin(admin.ModelAdmin):
     inlines = [OrderItemInline]
 
 
+class StripeOrderAdmin(admin.ModelAdmin):
+    model = StripeOrder
+    readonly_fields = ["date_ordered", "invoice", "date_ordered"]
+
+
 admin.site.unregister(Order)
+admin.site.unregister(StripeOrder)
 admin.site.register(Order, OrderAdmin)
+admin.site.register(StripeOrder, StripeOrderAdmin)
