@@ -57,7 +57,7 @@ def stripe_webhook(request):
         my_order.paid = True
         my_order.save()
 
-        stripe_order = StripeOrder(invoice=my_invoice, amount_paid=my_order.amount_paid)
+        stripe_order = StripeOrder(order=my_order, invoice=my_invoice, amount_paid=my_order.amount_paid)
         stripe_order.save()
     else:
         print('Unhandled event type {}'.format(event.type))
